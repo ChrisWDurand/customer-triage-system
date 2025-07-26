@@ -15,7 +15,11 @@ class MessageInput(BaseModel):
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model not found at {MODEL_PATH}. Please train the model first.")
 
+print("Loading model from:", MODEL_PATH)
+
 model = joblib.load(MODEL_PATH)
+
+print("Model loaded successfully")
 
 # Init FastAPI
 app = FastAPI(title="Customer Triage API")

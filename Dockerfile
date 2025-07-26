@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy files into the container
 COPY . /app
+COPY pipeline/model.pkl pipeline/model.pkl
 
 # Install dependencies
 RUN pip install --upgrade pip && \
