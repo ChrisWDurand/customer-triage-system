@@ -5,6 +5,7 @@ import subprocess
 
 TRAIN_PATH = "data/synthetic_messages.csv"
 INCOMING_PATH = "data/incoming_messages.csv"
+#Testing trigger
 
 # Incoming messages are also generated with the same faker config but with changes to distribution to simulate some variation in the quantities of classifications.
 def simulate_new_data():
