@@ -1,20 +1,48 @@
+# cloudbuild.yaml
+
+substitutions:
+  _SERVICE_NAME: customer-triage-api
+  _REGION: us-central1
+  _STAGE: staging  # Change to "prod" or use substitution
+
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/customer-triage-app', '.']
+  # Step 1: Validate Dockerfile exists
+  - name: "ubuntu"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        if [[ ! -f Dockerfile ]]; then
+          echo "Dockerfile missing!" && exit 1;
+        fi
 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/customer-triage-app']
+  # Step 2: Build the image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - build
+      - "-t"
+      - "gcr.io/$PROJECT_ID/$_SERVICE_NAME:$_STAGE"
+      - "."
 
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  # Step 3: Push the image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - push
+      - "gcr.io/$PROJECT_ID/$_SERVICE_NAME:$_STAGE"
+
+  # Step 4: Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
       - run
       - deploy
-      - customer-triage-api
-      - --image=gcr.io/$PROJECT_ID/customer-triage-app
-      - --region=us-central1
-      - --platform=managed
-      - --allow-unauthenticated
+      - "$_SERVICE_NAME"
+      - "--image=gcr.io/$PROJECT_ID/$_SERVICE_NAME:$_STAGE"
+      - "--region=$_REGION"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
 
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
+
+timeout: "900s"
